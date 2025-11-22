@@ -3,6 +3,7 @@ import { providers } from "ethers";
 import { ClobClient } from "@polymarket/clob-client";
 import { useConnection, useWalletClient } from "wagmi";
 import useSafeDeployment from "@/hooks/useSafeDeployment";
+import { RelayClient } from "@polymarket/builder-relayer-client";
 import { BuilderConfig } from "@polymarket/builder-signing-sdk";
 
 import { TradingSession } from "@/utils/session";
@@ -12,25 +13,26 @@ import {
   REMOTE_SIGNING_URL,
 } from "@/constants/polymarket";
 
-// This hook is responsible for creating and managing the CLOB client instance
-// It uses the custom session object's user API credentials to initialize the client
-// It also includes the builder config for proper order attribution
+// This hook creates the authenticated clobClient with the User API Credentials
+// and the builder config credentials, but only after a trading session is initialized
 
 export default function useClobClient(
-  session: TradingSession | null,
-  isComplete: boolean | undefined
+  tradingSession: TradingSession | null,
+  isTradingSessionComplete: boolean | undefined,
+  relayClient: RelayClient | null
 ) {
-  const { safeAddress } = useSafeDeployment();
   const { address: eoaAddress } = useConnection();
   const { data: walletClient } = useWalletClient();
+  const { derivedSafeAddressFromEoa } = useSafeDeployment(eoaAddress);
 
   const clobClient = useMemo(() => {
     if (
       !walletClient ||
       !eoaAddress ||
-      !safeAddress ||
-      !isComplete ||
-      !session?.apiCredentials
+      !derivedSafeAddressFromEoa ||
+      !isTradingSessionComplete ||
+      !tradingSession?.apiCredentials ||
+      !relayClient
     ) {
       return null;
     }
@@ -52,9 +54,9 @@ export default function useClobClient(
         CLOB_API_URL,
         POLYGON_CHAIN_ID,
         signer,
-        session.apiCredentials,
+        tradingSession.apiCredentials,
         2, // signatureType = 2 for browser wallet (Metamask, Rabby, etc.)
-        safeAddress,
+        derivedSafeAddressFromEoa,
         undefined, // mandatory placeholder
         false,
         builderConfig // Builder attribution
@@ -66,9 +68,10 @@ export default function useClobClient(
   }, [
     walletClient,
     eoaAddress,
-    safeAddress,
-    isComplete,
-    session?.apiCredentials,
+    derivedSafeAddressFromEoa,
+    isTradingSessionComplete,
+    tradingSession?.apiCredentials,
+    relayClient,
   ]);
 
   return { clobClient };

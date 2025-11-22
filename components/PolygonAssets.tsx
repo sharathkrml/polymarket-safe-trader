@@ -1,5 +1,6 @@
 "use client";
 
+import { useConnection } from "wagmi";
 import useSafeDeployment from "@/hooks/useSafeDeployment";
 import usePolygonBalances from "@/hooks/usePolygonBalances";
 
@@ -7,11 +8,13 @@ import Card from "@/components/shared/Card";
 import Badge from "@/components/shared/Badge";
 
 export default function PolygonAssets() {
-  const { safeAddress } = useSafeDeployment();
-  const { formattedUsdcBalance, isLoading, isError } =
-    usePolygonBalances(safeAddress);
+  const { address: eoaAddress } = useConnection();
+  const { derivedSafeAddressFromEoa } = useSafeDeployment(eoaAddress);
+  const { formattedUsdcBalance, isLoading, isError } = usePolygonBalances(
+    derivedSafeAddressFromEoa
+  );
 
-  if (!safeAddress) {
+  if (!derivedSafeAddressFromEoa) {
     return null;
   }
 

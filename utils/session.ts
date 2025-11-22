@@ -28,14 +28,14 @@ export const loadSession = (address: string): TradingSession | null => {
 
   try {
     const session = JSON.parse(stored) as TradingSession;
-    
+
     // Validate session belongs to this address
     if (session.eoaAddress.toLowerCase() !== address.toLowerCase()) {
       console.warn("Session address mismatch, clearing invalid session");
       clearSession(address);
       return null;
     }
-    
+
     return session;
   } catch (e) {
     console.error("Failed to parse session:", e);
@@ -43,10 +43,7 @@ export const loadSession = (address: string): TradingSession | null => {
   }
 };
 
-export const saveSession = (
-  address: string,
-  session: TradingSession
-): void => {
+export const saveSession = (address: string, session: TradingSession): void => {
   localStorage.setItem(
     `polymarket_trading_session_${address.toLowerCase()}`,
     JSON.stringify(session)
@@ -58,4 +55,3 @@ export const clearSession = (address: string): void => {
     `polymarket_trading_session_${address.toLowerCase()}`
   );
 };
-

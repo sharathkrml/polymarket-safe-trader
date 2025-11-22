@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import useTradingClient from "@/hooks/useTradingClient";
 import useHighVolumeMarkets from "@/hooks/useHighVolumeMarkets";
 
 import ErrorState from "@/components/shared/ErrorState";
@@ -9,17 +10,8 @@ import LoadingState from "@/components/shared/LoadingState";
 import MarketCard from "@/components/Trading/Markets/MarketCard";
 import OrderPlacementModal from "@/components/Trading/OrderModal";
 
-import type { ClobClient } from "@polymarket/clob-client";
-
-type HighVolumeMarketsProps = {
-  clobClient: ClobClient | null;
-  walletAddress: string | undefined;
-};
-
-export default function HighVolumeMarkets({
-  clobClient,
-  walletAddress,
-}: HighVolumeMarketsProps) {
+export default function HighVolumeMarkets() {
+  const { clobClient, eoaAddress } = useTradingClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOutcome, setSelectedOutcome] = useState<{
     marketTitle: string;
@@ -96,7 +88,7 @@ export default function HighVolumeMarkets({
           tokenId={selectedOutcome.tokenId}
           negRisk={selectedOutcome.negRisk}
           clobClient={clobClient}
-          walletAddress={walletAddress}
+          eoaAddress={eoaAddress}
         />
       )}
     </>

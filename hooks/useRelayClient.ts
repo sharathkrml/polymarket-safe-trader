@@ -11,31 +11,28 @@ import {
 } from "@/constants/polymarket";
 
 // This hook is responsible for creating and managing the relay client instance
-// It uses the user's EOA address and wallet client to initialize the relay client
-// It also includes the builder config for proper builder order attribution
+// The user's EOA address and wallet client are used to initialize the relay client
+// The builder config is included for proper builder order attribution
 // It returns null if the wallet is not connected or the EOA address is not provided
 
-export default function useRelayClient(address?: string) {
-  const [error, setError] = useState<Error | null>(null);
-  const [isInitializing, setIsInitializing] = useState(false);
+export default function useRelayClient(eoaAddress?: string) {
   const [relayClient, setRelayClient] = useState<RelayClient | null>(null);
   const { data: walletClient } = useWalletClient();
 
-  const initialize = useCallback(async () => {
-    if (!address || !walletClient) {
+  // This function initializes the relay client with the
+  // user's EOA signer and builder's API credentials
+  const initializeRelayClient = useCallback(async () => {
+    if (!eoaAddress || !walletClient) {
       throw new Error("Wallet not connected");
     }
-
-    setIsInitializing(true);
-    setError(null);
 
     try {
       const provider = new providers.Web3Provider(walletClient as any);
       const signer = provider.getSigner();
 
       // Builder config is obtained from 'polymarket.com/settings?tab=builder'
-      // We use the Builder Signing Server to enable remote signing
-      // This allows you to keep your builder credentials secure while signing requests
+      // A remote signing server is used to enable remote signing for order attribution
+      // This allows the builder credentials to be kept secure while signing requests
 
       const builderConfig = new BuilderConfig({
         remoteBuilderConfig: {
@@ -61,23 +58,18 @@ export default function useRelayClient(address?: string) {
         err instanceof Error
           ? err
           : new Error("Failed to initialize relay client");
-      setError(error);
       throw error;
-    } finally {
-      setIsInitializing(false);
     }
-  }, [address, walletClient]);
+  }, [eoaAddress, walletClient]);
 
-  const clear = useCallback(() => {
+  // This function clears the relay client and resets the state
+  const clearRelayClient = useCallback(() => {
     setRelayClient(null);
-    setError(null);
   }, []);
 
   return {
     relayClient,
-    isInitializing,
-    error,
-    initialize,
-    clear,
+    initializeRelayClient,
+    clearRelayClient,
   };
 }

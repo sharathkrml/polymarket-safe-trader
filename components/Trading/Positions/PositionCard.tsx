@@ -13,19 +13,25 @@ import { cn } from "@/utils/classNames";
 interface PositionCardProps {
   position: PolymarketPosition;
   onSell: (position: PolymarketPosition) => void;
+  onRedeem: (position: PolymarketPosition) => void;
   isSelling: boolean;
+  isRedeeming: boolean;
   isPendingVerification: boolean;
   isSubmitting: boolean;
   canSell: boolean;
+  canRedeem: boolean;
 }
 
 export default function PositionCard({
   position,
   onSell,
+  onRedeem,
   isSelling,
+  isRedeeming,
   isPendingVerification,
   isSubmitting,
   canSell,
+  canRedeem,
 }: PositionCardProps) {
   return (
     <Card className="p-4 space-y-3">
@@ -81,31 +87,51 @@ export default function PositionCard({
         </div>
       )}
 
-      {/* Market Sell Button */}
-      <button
-        onClick={() => onSell(position)}
-        disabled={
-          isSelling ||
-          isSubmitting ||
-          !canSell ||
-          position.redeemable ||
-          isPendingVerification
-        }
-        className={cn(
-          "w-full py-2 font-medium rounded-lg transition-colors",
-          isSelling || isPendingVerification
-            ? "bg-yellow-600/70 cursor-wait text-white"
-            : "bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white"
-        )}
-      >
-        {isSelling || isPendingVerification ? "Processing..." : "Market Sell"}
-      </button>
-
-      {/* CLOB Client Warning */}
-      {!canSell && (
-        <p className="text-xs text-yellow-400 text-center -mt-2">
-          Initialize CLOB client first
-        </p>
+      {/* Action Button - Redeem or Market Sell */}
+      {position.redeemable ? (
+        <>
+          <button
+            onClick={() => onRedeem(position)}
+            disabled={isRedeeming || !canRedeem}
+            className={cn(
+              "w-full py-2 font-medium rounded-lg transition-colors",
+              isRedeeming
+                ? "bg-yellow-600/70 cursor-wait text-white"
+                : "bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white"
+            )}
+          >
+            {isRedeeming ? "Redeeming..." : "Redeem Position"}
+          </button>
+          {!canRedeem && (
+            <p className="text-xs text-yellow-400 text-center -mt-2">
+              Initialize trading session first
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          <button
+            onClick={() => onSell(position)}
+            disabled={
+              isSelling || isSubmitting || !canSell || isPendingVerification
+            }
+            className={cn(
+              "w-full py-2 font-medium rounded-lg transition-colors",
+              isSelling || isPendingVerification
+                ? "bg-yellow-600/70 cursor-wait text-white"
+                : "bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white"
+            )}
+          >
+            {isSelling || isPendingVerification
+              ? "Processing..."
+              : "Market Sell"}
+          </button>
+          {!canSell && (
+            <p className="text-xs text-yellow-400 text-center -mt-2">
+              Initialize CLOB client first
+            </p>
+          )}
+        </>
       )}
     </Card>
   );

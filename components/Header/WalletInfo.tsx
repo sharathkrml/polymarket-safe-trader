@@ -12,10 +12,10 @@ export default function WalletInfo({
 }: {
   onDisconnect: () => void;
 }) {
-  const { safeAddress } = useSafeDeployment();
   const { address: eoaAddress } = useConnection();
+  const { derivedSafeAddressFromEoa } = useSafeDeployment(eoaAddress);
   const { copied: copiedSafe, copyAddress: copySafeAddress } = useAddressCopy(
-    safeAddress || null
+    derivedSafeAddressFromEoa || null
   );
 
   return (
@@ -35,7 +35,7 @@ export default function WalletInfo({
         </div>
 
         {/* Safe Wallet */}
-        {safeAddress && (
+        {derivedSafeAddressFromEoa && (
           <div className="flex flex-col sm:flex-row items-center gap-3 justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm text-blue-300 font-medium">
@@ -47,7 +47,9 @@ export default function WalletInfo({
               onClick={copySafeAddress}
               className="bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-500/50 rounded-lg px-4 py-2 transition-all select-none cursor-pointer font-mono text-sm text-blue-300 hover:text-blue-200 w-full sm:w-auto text-center"
             >
-              {copiedSafe ? "Copied!" : formatAddress(safeAddress)}
+              {copiedSafe
+                ? "Copied!"
+                : formatAddress(derivedSafeAddressFromEoa)}
             </button>
           </div>
         )}

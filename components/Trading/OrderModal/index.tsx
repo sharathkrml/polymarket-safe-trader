@@ -24,7 +24,7 @@ type OrderPlacementModalProps = {
   tokenId: string;
   negRisk?: boolean;
   clobClient: ClobClient | null;
-  walletAddress: string | undefined;
+  eoaAddress: string | undefined;
 };
 
 export default function OrderPlacementModal({
@@ -36,7 +36,7 @@ export default function OrderPlacementModal({
   tokenId,
   negRisk = false,
   clobClient,
-  walletAddress,
+  eoaAddress,
 }: OrderPlacementModalProps) {
   const [size, setSize] = useState<string>("");
   const [orderType, setOrderType] = useState<"market" | "limit">("market");
@@ -51,7 +51,7 @@ export default function OrderPlacementModal({
     isSubmitting,
     error: orderError,
     orderId,
-  } = useClobOrder(clobClient, walletAddress);
+  } = useClobOrder(clobClient, eoaAddress);
 
   useEffect(() => {
     if (isOpen) {

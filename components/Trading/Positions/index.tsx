@@ -1,8 +1,10 @@
 "use client";
 
-import useClobOrder from "@/hooks/useClobOrder";
 import { useState, useMemo, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import useClobOrder from "@/hooks/useClobOrder";
+import useTradingClient from "@/hooks/useTradingClient";
+import useRedeemPosition from "@/hooks/useRedeemPosition";
 import useUserPositions, { PolymarketPosition } from "@/hooks/useUserPositions";
 
 import ErrorState from "@/components/shared/ErrorState";
@@ -13,28 +15,23 @@ import PositionFilters from "@/components/Trading/Positions/PositionFilters";
 
 import { createPollingInterval } from "@/utils/polling";
 import { DUST_THRESHOLD } from "@/constants/validation";
-import type { ClobClient } from "@polymarket/clob-client";
 import { POLLING_DURATION, POLLING_INTERVAL } from "@/constants/query";
 
-type UserPositionsProps = {
-  safeAddress: string | null;
-  clobClient: ClobClient | null;
-  walletAddress: string | undefined;
-};
+export default function UserPositions() {
+  const { clobClient, relayClient, eoaAddress, safeAddress } =
+    useTradingClient();
 
-export default function UserPositions({
-  safeAddress,
-  clobClient,
-  walletAddress,
-}: UserPositionsProps) {
   const {
     data: positions,
     isLoading,
     error,
   } = useUserPositions(safeAddress as string | undefined);
-  const [hideDust, setHideDust] = useState(true);
 
-  const { submitOrder, isSubmitting } = useClobOrder(clobClient, walletAddress);
+  const [hideDust, setHideDust] = useState(true);
+  const [redeemingAsset, setRedeemingAsset] = useState<string | null>(null);
+
+  const { redeemPosition, isRedeeming } = useRedeemPosition();
+  const { submitOrder, isSubmitting } = useClobOrder(clobClient, eoaAddress);
   const [sellingAsset, setSellingAsset] = useState<string | null>(null);
 
   const [pendingVerification, setPendingVerification] = useState<
@@ -102,6 +99,38 @@ export default function UserPositions({
     }
   };
 
+  const handleRedeem = async (position: PolymarketPosition) => {
+    if (!relayClient) {
+      alert("Relay client not initialized");
+      return;
+    }
+
+    setRedeemingAsset(position.asset);
+    try {
+      await redeemPosition(relayClient, {
+        conditionId: position.conditionId,
+        outcomeIndex: position.outcomeIndex,
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["polymarket-positions"] });
+      queryClient.invalidateQueries({ queryKey: ["polygon-balances"] });
+
+      createPollingInterval(
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["polymarket-positions"] });
+          queryClient.invalidateQueries({ queryKey: ["polygon-balances"] });
+        },
+        POLLING_INTERVAL,
+        POLLING_DURATION
+      );
+    } catch (err) {
+      console.error("Failed to redeem position:", err);
+      alert("Failed to redeem position. Please try again.");
+    } finally {
+      setRedeemingAsset(null);
+    }
+  };
+
   const activePositions = useMemo(() => {
     if (!positions) return [];
 
@@ -156,11 +185,14 @@ export default function UserPositions({
           <PositionCard
             key={`${position.conditionId}-${position.outcomeIndex}`}
             position={position}
+            onRedeem={handleRedeem}
             onSell={handleMarketSell}
             isSelling={sellingAsset === position.asset}
+            isRedeeming={redeemingAsset === position.asset}
             isPendingVerification={pendingVerification.has(position.asset)}
             isSubmitting={isSubmitting}
             canSell={!!clobClient}
+            canRedeem={!!relayClient}
           />
         ))}
       </div>

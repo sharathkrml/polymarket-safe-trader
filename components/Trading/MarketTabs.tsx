@@ -7,7 +7,6 @@ import ActiveOrders from "@/components/Trading/Orders";
 import UserPositions from "@/components/Trading/Positions";
 import HighVolumeMarkets from "@/components/Trading/Markets";
 
-import type { ClobClient } from "@polymarket/clob-client";
 import { cn } from "@/utils/classNames";
 
 type TabId = "positions" | "orders" | "markets";
@@ -23,17 +22,7 @@ const tabs: Tab[] = [
   { id: "markets", label: "Markets" },
 ];
 
-type MarketTabsProps = {
-  clobClient: ClobClient | null;
-  walletAddress: string | undefined;
-  safeAddress: string | null;
-};
-
-export default function MarketTabs({
-  clobClient,
-  walletAddress,
-  safeAddress,
-}: MarketTabsProps) {
+export default function MarketTabs() {
   const [activeTab, setActiveTab] = useState<TabId>("markets");
 
   return (
@@ -58,22 +47,9 @@ export default function MarketTabs({
 
       {/* Tab Content */}
       <div>
-        {activeTab === "positions" && (
-          <UserPositions
-            safeAddress={safeAddress}
-            clobClient={clobClient}
-            walletAddress={walletAddress}
-          />
-        )}
-        {activeTab === "orders" && (
-          <ActiveOrders clobClient={clobClient} safeAddress={safeAddress} />
-        )}
-        {activeTab === "markets" && (
-          <HighVolumeMarkets
-            clobClient={clobClient}
-            walletAddress={walletAddress}
-          />
-        )}
+        {activeTab === "positions" && <UserPositions />}
+        {activeTab === "orders" && <ActiveOrders />}
+        {activeTab === "markets" && <HighVolumeMarkets />}
       </div>
     </Card>
   );

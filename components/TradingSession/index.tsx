@@ -16,7 +16,6 @@ import type {
 interface Props {
   session: TradingSessionType | null;
   currentStep: SessionStep;
-  statusMessage: string;
   error: Error | null;
   isComplete: boolean | undefined;
   initialize: () => Promise<void>;
@@ -26,7 +25,6 @@ interface Props {
 export default function TradingSession({
   session,
   currentStep,
-  statusMessage,
   error,
   isComplete,
   initialize,
@@ -42,10 +40,7 @@ export default function TradingSession({
     <div className="bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10">
       <SessionStatus isComplete={isComplete} />
       <SessionInfo isComplete={isComplete} />
-      <SessionProgress
-        currentStep={currentStep}
-        statusMessage={statusMessage}
-      />
+      <SessionProgress currentStep={currentStep} />
       {isComplete && session && <SessionSuccess session={session} />}
 
       {error && (

@@ -1,11 +1,10 @@
 import { SessionStep } from "@/utils/session";
 
-interface Props {
+export default function SessionProgress({
+  currentStep,
+}: {
   currentStep: SessionStep;
-  statusMessage: string;
-}
-
-export default function SessionProgress({ currentStep, statusMessage }: Props) {
+}) {
   if (currentStep === "idle" || currentStep === "complete") return null;
 
   return (
@@ -19,9 +18,6 @@ export default function SessionProgress({ currentStep, statusMessage }: Props) {
           {currentStep === "approvals" && "Setting USDC token approvals..."}
         </p>
       </div>
-      {statusMessage && (
-        <p className="text-xs text-gray-400 ml-7">{statusMessage}</p>
-      )}
     </div>
   );
 }

@@ -1,26 +1,26 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { RelayClient } from "@polymarket/builder-relayer-client";
 import { createUSDCApprovalTx, checkUSDCApproval } from "@/utils/approvals";
 
+// Uses relayClient to set USDC token approvals for the CTF Exchange
+
 export default function useTokenApprovals() {
-  const [isApproving, setIsApproving] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  const setApprovals = useCallback(
-    async (relayClient: RelayClient, safeAddress: string): Promise<boolean> => {
-      setIsApproving(true);
-      setError(null);
-
+  const checkUsdcApproval = useCallback(
+    async (safeAddress: string): Promise<boolean> => {
       try {
-        // Check if approval already exists
-        const hasApproval = await checkUSDCApproval(safeAddress);
+        return await checkUSDCApproval(safeAddress);
+      } catch (err) {
+        const error =
+          err instanceof Error ? err : new Error("Failed to check approvals");
+        throw error;
+      }
+    },
+    []
+  );
 
-        if (hasApproval) {
-          console.log("USDC approval already exists, skipping...");
-          return true; // Already approved
-        }
-
-        console.log("Setting USDC approval...");
+  const setUsdcTokenApprovals = useCallback(
+    async (relayClient: RelayClient): Promise<boolean> => {
+      try {
         const approvalTx = createUSDCApprovalTx();
         const response = await relayClient.execute(
           [approvalTx],
@@ -29,20 +29,15 @@ export default function useTokenApprovals() {
         await response.wait();
         return true;
       } catch (err) {
-        const error =
-          err instanceof Error ? err : new Error("Failed to set approvals");
-        setError(error);
-        throw error;
-      } finally {
-        setIsApproving(false);
+        console.error("Failed to set USDC token approvals:", err);
+        return false;
       }
     },
     []
   );
 
   return {
-    isApproving,
-    error,
-    setApprovals,
+    checkUsdcApproval,
+    setUsdcTokenApprovals,
   };
 }

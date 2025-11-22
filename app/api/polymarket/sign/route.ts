@@ -18,7 +18,7 @@ const BUILDER_CREDENTIALS: BuilderApiKeyCreds = {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { method, path, body: messageBody } = body;
+    const { method, path, body: requestBody } = body;
 
     if (
       !BUILDER_CREDENTIALS.key ||
@@ -31,9 +31,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!method || !path || !messageBody) {
+    if (!method || !path || !requestBody) {
       return NextResponse.json(
-        { error: "Missing required parameters: method, path, body" },
+        { error: "Missing required parameters: method, path" },
         { status: 400 }
       );
     }
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       parseInt(sigTimestamp),
       method,
       path,
-      messageBody
+      requestBody
     );
 
     return NextResponse.json({

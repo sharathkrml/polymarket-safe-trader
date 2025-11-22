@@ -3,23 +3,15 @@
 import { useState } from "react";
 import useClobOrder from "@/hooks/useClobOrder";
 import useActiveOrders from "@/hooks/useActiveOrders";
+import useTradingClient from "@/hooks/useTradingClient";
 
 import ErrorState from "@/components/shared/ErrorState";
 import EmptyState from "@/components/shared/EmptyState";
 import LoadingState from "@/components/shared/LoadingState";
 import OrderCard from "@/components/Trading/Orders/OrderCard";
 
-import type { ClobClient } from "@polymarket/clob-client";
-
-type ActiveOrdersProps = {
-  clobClient: ClobClient | null;
-  safeAddress: string | null;
-};
-
-export default function ActiveOrders({
-  clobClient,
-  safeAddress,
-}: ActiveOrdersProps) {
+export default function ActiveOrders() {
+  const { clobClient, safeAddress } = useTradingClient();
   const {
     data: orders,
     isLoading,

@@ -5,7 +5,7 @@ import {
 } from "@polymarket/builder-relayer-client";
 import { polygon } from "viem/chains";
 import { Interface } from "ethers/lib/utils";
-import { USDC_ADDRESS, CTF_EXCHANGE_ADDRESS } from "@/constants/tokens";
+import { USDC_ADDRESS, CTF_CONTRACT_ADDRESS } from "@/constants/tokens";
 import { POLYGON_RPC_URL } from "@/constants/polymarket";
 
 const erc20Interface = new Interface([
@@ -51,7 +51,7 @@ export const checkUSDCApproval = async (
       functionName: "allowance",
       args: [
         safeAddress as `0x${string}`,
-        CTF_EXCHANGE_ADDRESS as `0x${string}`,
+        CTF_CONTRACT_ADDRESS as `0x${string}`,
       ],
     });
 
@@ -69,7 +69,7 @@ export const createUSDCApprovalTx = (): SafeTransaction => ({
   to: USDC_ADDRESS,
   operation: OperationType.Call,
   data: erc20Interface.encodeFunctionData("approve", [
-    CTF_EXCHANGE_ADDRESS,
+    CTF_CONTRACT_ADDRESS,
     "115792089237316195423570985008687907853269984665640564039457584007913129639935",
   ]),
   value: "0",
