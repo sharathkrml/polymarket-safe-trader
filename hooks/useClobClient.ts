@@ -59,7 +59,7 @@ export default function useClobClient(
         derivedSafeAddressFromEoa,
         undefined, // mandatory placeholder
         false,
-        builderConfig // Builder attribution
+        builderConfig // Builder order attribution
       );
     } catch (error) {
       console.error("Failed to initialize CLOB client:", error);

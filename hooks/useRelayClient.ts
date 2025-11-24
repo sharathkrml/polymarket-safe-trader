@@ -11,16 +11,14 @@ import {
 } from "@/constants/polymarket";
 
 // This hook is responsible for creating and managing the relay client instance
-// The user's EOA address and wallet client are used to initialize the relay client
-// The builder config is included for proper builder order attribution
-// It returns null if the wallet is not connected or the EOA address is not provided
+// The user's signer and builder config are used to initialize the relay client
 
 export default function useRelayClient(eoaAddress?: string) {
   const [relayClient, setRelayClient] = useState<RelayClient | null>(null);
   const { data: walletClient } = useWalletClient();
 
-  // This function initializes the relay client with the
-  // user's EOA signer and builder's API credentials
+  // This function initializes the relay client with
+  // the user's signer and builder config
   const initializeRelayClient = useCallback(async () => {
     if (!eoaAddress || !walletClient) {
       throw new Error("Wallet not connected");
@@ -31,7 +29,7 @@ export default function useRelayClient(eoaAddress?: string) {
       const signer = provider.getSigner();
 
       // Builder config is obtained from 'polymarket.com/settings?tab=builder'
-      // A remote signing server is used to enable remote signing for order attribution
+      // A remote signing server is used to enable remote signing for builder authentication
       // This allows the builder credentials to be kept secure while signing requests
 
       const builderConfig = new BuilderConfig({

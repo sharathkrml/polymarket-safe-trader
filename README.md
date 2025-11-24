@@ -141,7 +141,7 @@ const { data: walletClient } = useWalletClient();
 
 **File**: `app/api/polymarket/sign/route.ts`
 
-Builder credentials are stored server-side and accessed via a remote signing endpoint. This keeps your builder credentials secure while enabling order attribution.
+Builder credentials are stored server-side and accessed via a remote signing endpoint. This keeps your builder credentials secure while enabling order attribution or relay authentication.
 
 ```typescript
 // Server-side API route
@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
 
 - Builder credentials never exposed to client
 - Secure HMAC signature generation
-- Required for builder order attribution
+- Required for builder order attribution (with ClobClient) or authentication (RelayClient)
 
 ---
 
@@ -215,7 +215,7 @@ const relayClient = new RelayClient(
 **Key Points:**
 
 - Requires user's EOA signer (from wagmi)
-- Builder config enables order attribution
+- Requires builder's config for authentication
 - Used for Safe deployment and approvals
 - Persisted throughout trading session
 
@@ -452,10 +452,10 @@ const clobClient = new ClobClient(
   signer,
   userApiCredentials, // { key, secret, passphrase }
   2, // signatureType = 2 for browser wallets (MetaMask, Rabby, etc.)
-  safeAddress, // funder address
+  safeAddress, // funder address from step 4
   undefined, // mandatory placeholder
   false,
-  builderConfig // Builder attribution
+  builderConfig // Builder order attribution
 );
 ```
 

@@ -86,7 +86,7 @@ export default function useTradingSession() {
       const existingSession = loadSession(eoaAddress);
 
       // Step 1: Initializes relayClient with the user's EOA signer and
-      // builder's API credentials (via remote signing server) for order attribution
+      // builder config (via remote signing server) for authentication
       const initializedRelayClient = await initializeRelayClient();
 
       // Step 2: Get Safe address (deterministic derivation from EOA)

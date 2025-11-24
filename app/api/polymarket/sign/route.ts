@@ -10,10 +10,7 @@ const BUILDER_CREDENTIALS: BuilderApiKeyCreds = {
   passphrase: process.env.POLYMARKET_BUILDER_PASSPHRASE!,
 };
 
-// This route is used to sign messages for the builder order attribution
-// It uses the builder credentials to sign the messages
-// It returns the signature, timestamp, API key, and passphrase
-// It is used by the clob and relay clients to sign requests for order attribution
+// This route is used to sign messages for builder authentication (RelayClient) or order attribution (ClobClient)
 
 export async function POST(request: NextRequest) {
   try {
