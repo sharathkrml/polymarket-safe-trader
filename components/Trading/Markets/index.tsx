@@ -1,34 +1,34 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import useTradingClient from "@/hooks/useTradingClient";
-import useHighVolumeMarkets from "@/hooks/useHighVolumeMarkets";
+import { useState } from "react"
+import useTradingClient from "@/hooks/useTradingClient"
+import useHighVolumeMarkets from "@/hooks/useHighVolumeMarkets"
 
-import ErrorState from "@/components/shared/ErrorState";
-import EmptyState from "@/components/shared/EmptyState";
-import LoadingState from "@/components/shared/LoadingState";
-import MarketCard from "@/components/Trading/Markets/MarketCard";
-import OrderPlacementModal from "@/components/Trading/OrderModal";
+import ErrorState from "@/components/shared/ErrorState"
+import EmptyState from "@/components/shared/EmptyState"
+import LoadingState from "@/components/shared/LoadingState"
+import MarketCard from "@/components/Trading/Markets/MarketCard"
+import OrderPlacementModal from "@/components/Trading/OrderModal"
 
 export default function HighVolumeMarkets() {
-  const { clobClient, eoaAddress } = useTradingClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { clobClient, eoaAddress } = useTradingClient()
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedOutcome, setSelectedOutcome] = useState<{
-    marketTitle: string;
-    outcome: string;
-    price: number;
-    tokenId: string;
-    negRisk: boolean;
-  } | null>(null);
+    marketTitle: string
+    outcome: string
+    price: number
+    tokenId: string
+    negRisk: boolean
+  } | null>(null)
 
-  const { data: markets, isLoading, error } = useHighVolumeMarkets(10);
+  const { data: markets, isLoading, error } = useHighVolumeMarkets(100)
 
   if (isLoading) {
-    return <LoadingState message="Loading high volume markets..." />;
+    return <LoadingState message="Loading high volume markets..." />
   }
 
   if (error) {
-    return <ErrorState error={error} title="Error loading markets" />;
+    return <ErrorState error={error} title="Error loading markets" />
   }
 
   if (!markets || markets.length === 0) {
@@ -37,7 +37,7 @@ export default function HighVolumeMarkets() {
         title="No Markets Available"
         message="No active markets found."
       />
-    );
+    )
   }
 
   const handleOutcomeClick = (
@@ -47,14 +47,14 @@ export default function HighVolumeMarkets() {
     tokenId: string,
     negRisk: boolean
   ) => {
-    setSelectedOutcome({ marketTitle, outcome, price, tokenId, negRisk });
-    setIsModalOpen(true);
-  };
+    setSelectedOutcome({ marketTitle, outcome, price, tokenId, negRisk })
+    setIsModalOpen(true)
+  }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedOutcome(null);
-  };
+    setIsModalOpen(false)
+    setSelectedOutcome(null)
+  }
 
   return (
     <>
@@ -92,5 +92,5 @@ export default function HighVolumeMarkets() {
         />
       )}
     </>
-  );
+  )
 }
